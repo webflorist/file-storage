@@ -3,12 +3,14 @@
 namespace Webflorist\FileStorage;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Session\Store;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Webflorist\FileStorage\Exceptions\StoredFileNotFoundException;
 use Webflorist\FileStorage\Models\StoredFile;
 
 /**
@@ -29,7 +31,12 @@ class FileStorage
      */
     public function get(string $uuid): StoredFile
     {
-        return StoredFile::where('uuid', $uuid)->firstOrFail();
+        try {
+            return StoredFile::where('uuid', $uuid)->firstOrFail();
+        }
+        catch(ModelNotFoundException $modelNotFoundException) {
+            throw new StoredFileNotFoundException("No stored file found in datbase with UUID '$uuid'.");
+        }
     }
 
     /**
@@ -51,7 +58,7 @@ class FileStorage
             'uuid' => self::generateUuid(),
             'name' => self::sanitizeFileName($fileName),
             'path' => $path,
-            'title' => $title
+            'title' => $title ?? pathinfo($file->getClientOriginalName(),PATHINFO_FILENAME)
         ]);
 
     }
@@ -64,7 +71,12 @@ class FileStorage
      */
     public function update(string $uuid, array $data)
     {
-        StoredFile::where('uuid', $uuid)->firstOrFail()->update($data);
+        try {
+            StoredFile::where('uuid', $uuid)->firstOrFail()->update($data);
+        }
+        catch(ModelNotFoundException $modelNotFoundException) {
+            throw new StoredFileNotFoundException("No stored file found in datbase with UUID '$uuid'.");
+        }
     }
 
     /**
@@ -75,17 +87,20 @@ class FileStorage
      */
     public function delete(string $uuid)
     {
+        try {
+            // Retrieve file-info to delete.
+            /** @var StoredFile $file2Delete */
+            $file2Delete = StoredFile::where('uuid', $uuid)->firstOrFail();
 
-        // Retrieve file-info to delete.
-        /** @var StoredFile $file2Delete */
-        $file2Delete = StoredFile::where('uuid', $uuid)->firstOrFail();
+            // Delete the file.
+            Storage::delete($file2Delete->getPathname());
 
-        // Delete the file.
-        Storage::delete($file2Delete->getPathname());
-
-        // Delete the DB-entry.
-        $file2Delete->delete();
-
+            // Delete the DB-entry.
+            $file2Delete->delete();
+        }
+        catch(ModelNotFoundException $modelNotFoundException) {
+            throw new StoredFileNotFoundException("No stored file found in datbase with UUID '$uuid'.");
+        }
     }
 
     private static function sanitizeFileName(string $fileName): string

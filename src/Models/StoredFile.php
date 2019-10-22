@@ -21,77 +21,35 @@ class StoredFile extends Model
         'title',
     ];
 
+    public function getTitleAttribute($value)
+    {
+        return $value ?? $this->getBasename();
+    }
+
     public function getPathname()
     {
         return $this->path . '/' . $this->name;
     }
 
-
-    public function storeDocument(UploadedFile $uploadedFile, string $documentType)
+    public function getSize()
     {
-        if (array_search($documentType, Supplier::DOCUMENT_TYPES) === false) {
-            throw new \Exception("Document of type '$documentType' not allowed.");
-        }
-        return $uploadedFile->storeAs($this->getDocumentFolder($documentType), $uploadedFile->getClientOriginalName());
+        return Storage::size($this->getPathname());
     }
 
-    public function deleteDocument(string $fileName, string $documentType)
-    {
-        Storage::delete($this->getDocumentFolder($documentType) . '/' . $fileName);
+    public function getMimeType() {
+        return Storage::mimeType($this->getPathname());
     }
 
-    public function renameDocument(string $fileName, string $documentType, string $newFileName)
-    {
-        $folder = $this->getDocumentFolder($documentType) . '/';
-        Storage::move($folder . $fileName, $folder . $newFileName);
+    public function getExtension() {
+        return pathinfo($this->name, PATHINFO_EXTENSION);
     }
 
-    public function getDocumentIndex()
-    {
-        $filesData = [];
-        foreach (self::DOCUMENT_TYPES as $documentType) {
-            $filesData[$documentType] = [];
-
-            foreach (Storage::files($this->getDocumentFolder($documentType)) as $key => $filePath) {
-                $fileName = explode('/', $filePath);
-                $fileName = end($fileName);
-                $filesData[$documentType][] = [
-                    "name" => $fileName,
-                    "size" => Storage::size($filePath), // 24 MB
-                    "type" => Storage::mimeType($filePath),
-                    "ext" => "pdf",
-                    "url" => Storage::url($filePath),
-                    "hash" => md5($filePath),
-                ];
-            }
-        }
-        return $filesData;
+    public function getBasename() {
+        return pathinfo($this->name, PATHINFO_FILENAME);
     }
 
-    private static function mergeProductIndexes(array &$productIndex, array $nestedRootLineCategoriesWithProduct)
-    {
-        foreach ($nestedRootLineCategoriesWithProduct as $categoryId => $categoryData) {
-            if (!isset($productIndex[$categoryId])) {
-                $productIndex[$categoryId] = $categoryData;
-            } else {
-                if (isset($productIndex[$categoryId]['products'])) {
-                    $productIndex[$categoryId]['products'] = array_merge($productIndex[$categoryId]['products'], $categoryData['products']);
-                } else {
-                    self::mergeProductIndexes($productIndex[$categoryId]['subcategories'], $categoryData['subcategories']);
-                }
-            }
-        }
-    }
-
-    public function getHashedId()
-    {
-        return hash('crc32', $this->id, FALSE);;
-    }
-
-    private function getDocumentFolder(string $documentType)
-    {
-        $userSegment = $this->getHashedId();
-        return "suppliers/$userSegment/$documentType";
+    public function getUrl() {
+        return Storage::url($this->getPathname());
     }
 
 }
