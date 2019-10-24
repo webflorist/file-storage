@@ -11,6 +11,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Session\Store;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Webflorist\FileStorage\Exceptions\FileAlreadyExistsException;
 use Webflorist\FileStorage\Exceptions\StoredFileNotFoundException;
 use Webflorist\FileStorage\Models\StoredFile;
 
@@ -64,11 +65,15 @@ class FileStorage
         $fileName = !is_null($title) ? $title . '.' . $file->getClientOriginalExtension() : $file->getClientOriginalName();
         $fileName = self::sanitizeFileName($fileName);
 
+        if (Storage::exists($path.'/'.$fileName)) {
+            throw new FileAlreadyExistsException("A file with name $fileName already exists in folder $path.");
+        }
+
         $file->storeAs($path, $fileName);
 
         return StoredFile::create([
             'uuid' => self::generateUuid(),
-            'name' => self::sanitizeFileName($fileName),
+            'name' => $fileName,
             'path' => $path,
             'title' => $title ?? pathinfo($file->getClientOriginalName(),PATHINFO_FILENAME)
         ]);
