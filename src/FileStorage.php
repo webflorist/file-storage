@@ -3,6 +3,7 @@
 namespace Webflorist\FileStorage;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -37,6 +38,17 @@ class FileStorage
         catch(ModelNotFoundException $modelNotFoundException) {
             throw new StoredFileNotFoundException("No stored file found in datbase with UUID '$uuid'.");
         }
+    }
+
+    /**
+     * Searches for files.
+     *
+     * @param string $uuid
+     * @return Collection
+     */
+    public function search(array $attributes): Collection
+    {
+        return StoredFile::where($attributes)->get();
     }
 
     /**
