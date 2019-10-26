@@ -11,7 +11,7 @@ class StoredFileRule implements Rule
     /**
      * @var array|null
      */
-    private $fileRules;
+    public $fileRules;
 
     private $errorMessage;
 
