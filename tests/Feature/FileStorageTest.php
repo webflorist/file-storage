@@ -4,6 +4,7 @@ namespace FileStorageTests\Feature;
 
 use FileStorageTests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
@@ -68,20 +69,6 @@ class FileStorageTest extends TestCase
         $this->storeTestFile($fileName, $filePath);
         $this->storeTestFile($fileName, $filePath);
         Storage::assertExists("$filePath/test-file_1.pdf");
-    }
-
-    /**
-     * @param string $fileName
-     * @param string $filePath
-     * @return \Webflorist\FileStorage\Models\StoredFile
-     */
-    private function storeTestFile(string $fileName, string $filePath): \Webflorist\FileStorage\Models\StoredFile
-    {
-        $storedFile = file_storage()->store(
-            UploadedFile::fake()->create($fileName),
-            $filePath
-        );
-        return $storedFile;
     }
 
 }

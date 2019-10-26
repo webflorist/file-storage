@@ -47,7 +47,7 @@ class FileStorageServiceProvider extends ServiceProvider
     protected function publishConfig()
     {
         $this->publishes([
-            __DIR__ . '/../config/file-storage.php' => config_path('file-storage.php'),
+            __DIR__ . '/../config/file-storage.php' => config_path('validation.php'),
         ]);
     }
 

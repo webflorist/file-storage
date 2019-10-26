@@ -6,6 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * @property string uuid
+ * @property string name
+ * @property string path
+ * @property string title
+ */
 class StoredFile extends Model
 {
 

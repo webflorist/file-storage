@@ -4,10 +4,12 @@ namespace FileStorageTests;
 
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Routing\Router;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 use Webflorist\FileStorage\FileStorageFacade;
 use Webflorist\FileStorage\FileStorageServiceProvider;
+use Webflorist\FileStorage\Models\StoredFile;
 
 /**
  * Class TestCase
@@ -19,6 +21,7 @@ class TestCase extends BaseTestCase
      * @var Repository
      */
     protected $config;
+
     /**
      * @var Router
      */
@@ -50,6 +53,20 @@ class TestCase extends BaseTestCase
             storage_path('app')
         );
         parent::tearDown();
+    }
+
+    /**
+     * @param string $fileName
+     * @param string $filePath
+     * @return StoredFile
+     */
+    protected function storeTestFile(string $fileName, string $filePath): StoredFile
+    {
+        $storedFile = file_storage()->store(
+            UploadedFile::fake()->create($fileName),
+            $filePath
+        );
+        return $storedFile;
     }
 
 
