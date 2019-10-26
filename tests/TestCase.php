@@ -3,6 +3,7 @@
 namespace FileStorageTests;
 
 use Illuminate\Contracts\Config\Repository;
+use Illuminate\Filesystem\Filesystem;
 use Illuminate\Routing\Router;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 use Webflorist\FileStorage\FileStorageFacade;
@@ -41,6 +42,14 @@ class TestCase extends BaseTestCase
     {
         $this->router = $app[Router::class];
         $this->config = $app['config'];
+    }
+
+    protected function tearDown() : void
+    {
+        (new Filesystem())->deleteDirectories(
+            storage_path('app')
+        );
+        parent::tearDown();
     }
 
 

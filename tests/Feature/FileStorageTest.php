@@ -15,10 +15,8 @@ class FileStorageTest extends TestCase
     {
         $fileName = 'Test File.pdf';
         $filePath = 'my/desired/file/path';
-        $storedFile = file_storage()->store(
-            UploadedFile::fake()->create($fileName),
-            $filePath
-        );
+        $storedFile = $this->storeTestFile($fileName, $filePath);
+
         $this->assertEquals('test-file.pdf', $storedFile->name);
         $this->assertEquals($filePath, $storedFile->path);
 
@@ -61,6 +59,29 @@ class FileStorageTest extends TestCase
         $uuid = $this->test_store_file();
         file_storage()->delete($uuid);
         Storage::assertMissing("my/desired/file/path/test-file.pdf");
+    }
+
+    public function test_unique_file_name()
+    {
+        $fileName = 'Test File.pdf';
+        $filePath = 'my/desired/file/path';
+        $this->storeTestFile($fileName, $filePath);
+        $this->storeTestFile($fileName, $filePath);
+        Storage::assertExists("$filePath/test-file_1.pdf");
+    }
+
+    /**
+     * @param string $fileName
+     * @param string $filePath
+     * @return \Webflorist\FileStorage\Models\StoredFile
+     */
+    private function storeTestFile(string $fileName, string $filePath): \Webflorist\FileStorage\Models\StoredFile
+    {
+        $storedFile = file_storage()->store(
+            UploadedFile::fake()->create($fileName),
+            $filePath
+        );
+        return $storedFile;
     }
 
 }
