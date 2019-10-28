@@ -118,6 +118,11 @@ class FileStorage
             // Delete the file.
             Storage::delete($file2Delete->getPathname());
 
+            // Delete the thumbnail.
+            if ($file2Delete->hasThumbnail()) {
+                Storage::delete($file2Delete->getThumbnailPathname());
+            }
+
             // Delete the DB-entry.
             $file2Delete->delete();
         }

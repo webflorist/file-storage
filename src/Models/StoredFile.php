@@ -58,8 +58,17 @@ class StoredFile extends Model
         return Storage::url($this->getPathname());
     }
 
+    public function hasThumbnail() {
+        Storage::exists($this->getThumbnailPathname());
+    }
+
+    public function getThumbnailPathname()
+    {
+        return $this->path . '/thumbs/' . $this->name;
+    }
+
     public function getThumbnailUrl() {
-        return Storage::url($this->path . '/thumbs/' . $this->name);
+        return Storage::url($this->getThumbnailPathname());
     }
 
 }
