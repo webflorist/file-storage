@@ -21,7 +21,7 @@ class FileStorageTest extends TestCase
         $this->assertEquals('test-file.pdf', $storedFile->name);
         $this->assertEquals($filePath, $storedFile->path);
 
-        Storage::assertExists("$filePath/test-file.pdf");
+        $this->assertFileExistsInStorage("$filePath/test-file.pdf");
         return $storedFile->uuid;
     }
 
@@ -38,7 +38,7 @@ class FileStorageTest extends TestCase
         $this->assertEquals('my-desired-file-title.pdf', $storedFile->name);
         $this->assertEquals($filePath, $storedFile->path);
 
-        Storage::assertExists("$filePath/my-desired-file-title.pdf");
+        $this->assertFileExistsInStorage("$filePath/my-desired-file-title.pdf");
         return $storedFile->uuid;
     }
 
@@ -59,7 +59,7 @@ class FileStorageTest extends TestCase
     {
         $uuid = $this->test_store_file();
         file_storage()->delete($uuid);
-        Storage::assertMissing("my/desired/file/path/test-file.pdf");
+        $this->assertFileMissingInStorage("my/desired/file/path/test-file.pdf");
     }
 
     public function test_unique_file_name()
@@ -68,7 +68,7 @@ class FileStorageTest extends TestCase
         $filePath = 'my/desired/file/path';
         $this->storeTestFile($fileName, $filePath);
         $this->storeTestFile($fileName, $filePath);
-        Storage::assertExists("$filePath/test-file_1.pdf");
+        $this->assertFileExistsInStorage("$filePath/test-file_1.pdf");
     }
 
 }

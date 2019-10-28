@@ -10,8 +10,10 @@
     "require": {
         "php": "~7.1",
 		"laravel/framework": "~5.8",
-        "jbroadway/urlify": "^1.1"
-	},
+        "jbroadway/urlify": "^1.1",
+        "intervention/image": "^2.5",
+        "ext-json": "*"
+    },
     "require-dev": {
         "orchestra/testbench": "~3.8"
     },
