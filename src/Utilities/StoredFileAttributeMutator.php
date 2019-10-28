@@ -15,7 +15,7 @@ class StoredFileAttributeMutator
      *      - array containing an existing UUID under the key 'stored_file_uuid' (to keep or switch the file)
      *      - null (to remove file)
      *      - UploadedFile (to store a newly uploaded file)
-     * @param null|string $existingValue
+     * @param null|string $existingValue: Either null or UUID of an existing StoredFile
      * @param string $storagePath
      * @param bool $deleteOldFile
      * @param callable|null $uploadedFileCallback
@@ -23,7 +23,7 @@ class StoredFileAttributeMutator
      * @return string|null
      * @throws StoredFileNotFoundException
      */
-    public static function mutateFileAttribute($newValue, $existingValue, string $storagePath, bool $deleteOldFile = false, ?callable $uploadedFileCallback = null, ?callable $storedFileCallback = null)
+    public static function mutateFileAttribute($newValue, ?string $existingValue, string $storagePath, bool $deleteOldFile = false, ?callable $uploadedFileCallback = null, ?callable $storedFileCallback = null)
     {
 
         // Per default we assume the new value should be null.
