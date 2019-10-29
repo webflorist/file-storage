@@ -59,28 +59,29 @@ class FileStorage
     /**
      * Stores a file.
      *
-     * @param UploadedFile $file
+     * @param UploadedFile|string $file
      * @param string $path
      * @param string|null $title
      * @return StoredFile
      */
-    public function store(UploadedFile $file, string $path, ?string $title = null): StoredFile
+    public function store($file, string $path, ?string $title = null): StoredFile
     {
-        $fileName = !is_null($title) ? $title . '.' . $file->getClientOriginalExtension() : $file->getClientOriginalName();
+        // Establish filename.
+        $fileName = !is_null($title) ? $title . '.' . $this->getFileExtension($file) : $this->getOriginalFileName($file);
         $fileName = self::sanitizeFileName($fileName);
         $fileName = self::makeFileNameUnique($path, $fileName);
 
-        if (array_search($file->guessExtension(), ['jpg', 'jpeg', 'png', 'gif']) !== false) {
+        if ($this->fileIsImage($file)) {
             $this->storeThumbnail($file, $path, $fileName);
         }
 
-        $file->storeAs($path, $fileName);
+        $this->storeFile($file, $path, $fileName);
 
         return StoredFile::create([
             'uuid' => self::generateUuid(),
             'name' => $fileName,
             'path' => $path,
-            'title' => $title ?? pathinfo($file->getClientOriginalName(),PATHINFO_FILENAME)
+            'title' => $title ?? pathinfo($this->getOriginalFileName($file),PATHINFO_FILENAME)
         ]);
 
     }
@@ -192,6 +193,64 @@ class FileStorage
             $constraint->upsize();
         })->save($fileThumb);
         Storage::putFileAs("$path/thumbs", new File($fileThumb), $fileName);
+    }
+
+    /**
+     * @param $file
+     * @return string|null
+     */
+    private function getFileExtension($file) : ?string
+    {
+        if (is_object($file) && is_a($file, UploadedFile::class)) {
+            return $file->getClientOriginalExtension();
+        }
+
+        if (is_string($file)) {
+            $explodedFileName = explode('.',$this->getOriginalFileName($file));
+            return end($explodedFileName);
+        }
+
+    }
+
+    /**
+     * @param $file
+     * @return mixed
+     */
+    private function getOriginalFileName($file)
+    {
+        if (is_object($file) && is_a($file, UploadedFile::class)) {
+            return $file->getClientOriginalExtension();
+        }
+
+        if (is_string($file)) {
+            $explodedFile = explode('/',$file);
+            return end($explodedFile);
+        }
+    }
+
+    /**
+     * @param $file
+     * @return bool
+     */
+    private function fileIsImage($file): bool
+    {
+        return array_search($this->getFileExtension($file), ['jpg', 'jpeg', 'png', 'gif']) !== false;
+    }
+
+    /**
+     * @param $file
+     * @param string $path
+     * @param string $fileName
+     */
+    private function storeFile($file, string $path, string $fileName): void
+    {
+        if (is_object($file) && is_a($file, UploadedFile::class)) {
+            $file->storeAs($path, $fileName);
+        }
+
+        if (is_string($file)) {
+            Storage::move($file, "$path/$fileName");
+        }
     }
 
 }
