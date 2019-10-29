@@ -132,7 +132,7 @@ class FileStorage
         }
     }
 
-    private static function sanitizeFileName(string $fileName): string
+    public static function sanitizeFileName(string $fileName): string
     {
         return \URLify::filter($fileName, 60, "", true);
     }
