@@ -219,7 +219,7 @@ class FileStorage
     private function getOriginalFileName($file)
     {
         if (is_object($file) && is_a($file, UploadedFile::class)) {
-            return $file->getClientOriginalExtension();
+            return $file->getClientOriginalName();
         }
 
         if (is_string($file)) {
