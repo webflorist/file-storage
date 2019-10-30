@@ -37,9 +37,19 @@ class StoredFile extends Model
         return $this->path . '/' . $this->name;
     }
 
-    public function getSize()
+    public function getSize($humanReadable = false)
     {
-        return Storage::size($this->getPathname());
+        $bytes = Storage::size($this->getPathname());
+        if (!$humanReadable) {
+            return $bytes;
+        }
+
+        $units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
+        for ($i = 0; $bytes > 1024; $i++) {
+            $bytes /= 1024;
+        }
+
+        return round($bytes, 2) . ' ' . $units[$i];
     }
 
     public function getMimeType() {
