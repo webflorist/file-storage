@@ -64,14 +64,14 @@ class FileStorage
      * @param string|null $title
      * @return StoredFile
      */
-    public function store($file, string $path, ?string $title = null): StoredFile
+    public function store($file, string $path, ?string $title = null, bool $storeThumbnail = true ): StoredFile
     {
         // Establish filename.
         $fileName = !is_null($title) ? $title . '.' . $this->getFileExtension($file) : $this->getOriginalFileName($file);
         $fileName = self::sanitizeFileName($fileName);
         $fileName = self::makeFileNameUnique($path, $fileName);
 
-        if ($this->fileIsImage($file)) {
+        if ($storeThumbnail && $this->fileIsImage($file)) {
             $this->storeThumbnail($file, $path, $fileName);
         }
 
