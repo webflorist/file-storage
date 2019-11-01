@@ -168,7 +168,7 @@ class FileStorage
      *
      * @return string
      */
-    private static function generateUuid() : string
+    public static function generateUuid() : string
     {
         $uuid = Str::uuid()->toString();
 
