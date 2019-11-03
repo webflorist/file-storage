@@ -202,7 +202,7 @@ class FileStorage
     private function getFileExtension($file) : ?string
     {
         if (is_object($file) && is_a($file, UploadedFile::class)) {
-            return $file->getClientOriginalExtension();
+            return $file->clientExtension();
         }
 
         if (is_string($file)) {
