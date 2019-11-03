@@ -63,8 +63,8 @@ class StoredFileAttributeMutator
             )->uuid;
         }
 
-        // Perform deletion, if requested.
-        if (!is_null($existingValue) && $deleteOldFile) {
+        // Perform deletion, if a change of files happened, and deletion was requested.
+        if (!is_null($existingValue) && ($existingValue !== $mutatedValue) && $deleteOldFile) {
             file_storage()->delete($existingValue);
         }
 
